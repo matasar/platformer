@@ -26,6 +26,7 @@ function love.load()
 
   player = Player.create(300, 485)
   ground = Ground.create()
+  ground:isOnGround(player)
   love.graphics.setBackgroundColor(skyBlue)
 end
 
@@ -46,14 +47,27 @@ function keyDownForAction(action)
   return false
 end
 
+function withColor(color, fn)
+  local r,g,b,a = love.graphics.getColor()
+  love.graphics.setColor(color)
+  fn()
+  love.graphics.setColor(r,g,b,a)
+end
+
+function updateWorldOffset(newOffset)
+  worldOffset = math.min(0,newOffset)
+end
+
 function love.draw()
   ground:draw()
   player:draw()
   local yellow = {204, 255, 51, 255}
-  local r,g,b,a = love.graphics.getColor()
-  love.graphics.setColor(yellow)
-  love.graphics.arc("fill", 0, 0, 100, 0, math.pi / 2, 20)
-  love.graphics.setColor(r,g,b,a)
+  withColor(yellow, function()
+    love.graphics.arc("fill", 0, 0, 100, 0, math.pi / 2, 20)
+  end)
+  withColor({0,0,0}, function()
+    love.graphics.print("FPS: " .. love.timer.getFPS(), 750, 0)
+  end)
 end
 
 function love.update(dt)

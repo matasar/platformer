@@ -24,11 +24,11 @@ end
 
 function Player:draw()
   love.graphics.draw(self.image, self.x, self.y, self.orientation, 1, 1, 50, 85)
-  local x,y,width,height = self:getHitBox()
+  local x,y,width,height = self:getBox()
   love.graphics.rectangle("line", x,y,width,height)
 end
 
-function Player:getHitBox()
+function Player:getBox()
   return self.x - 40, self.y - 30, 80, 85
 end
 
@@ -64,11 +64,13 @@ function Player:update(dt)
   if self:isJumping() then
     self.y = self.y - self.upVelocity * dt
     self.upVelocity = self.upVelocity - (self.gravity * dt)
-    if self.y > 485 then
+    if self.y > 485 and ground:isOnGround(self) then
       self.upVelocity = 0
       self.upAcceleration = 0
       self.y = 485
     end
+  elseif not ground:isOnGround(self) then
+    self.upVelocity = self.upVelocity - (self.gravity * dt)
   end
 
   if self:isMovingLeft() then
@@ -76,7 +78,7 @@ function Player:update(dt)
     self.x = self.x - dt * self.xVelocity
     self.decelDirection = -1
     if self.x < playerMinX then
-      worldOffset = worldOffset + dt * self.xVelocity
+      updateWorldOffset(worldOffset + dt * self.xVelocity)
       self.x = playerMinX
     end
     self.orientation = -1 * math.pi / 20
@@ -84,14 +86,22 @@ function Player:update(dt)
     self.xVelocity = math.min(self.xVelocity + (dt * self.xAcceleration), self.maxXVelocity)
     self.x = self.x + dt * self.xVelocity
     if self.x > playerMaxX then
-      worldOffset = worldOffset - dt * self.xVelocity
+      updateWorldOffset(worldOffset - dt * self.xVelocity)
       self.x = playerMaxX
     end
     self.decelDirection = 1
     self.orientation = math.pi / 20
   else -- decel
     self.xVelocity = math.max(math.abs(self.xVelocity) - (dt * self.xDeceleration), 0) * self.decelDirection
-    self.x = self.x + dt * self.xVelocity
+    if self.x >= playerMaxX then
+      updateWorldOffset(worldOffset - dt * self.xVelocity)
+      self.x = playerMaxX
+    elseif self.x <= playerMinX then
+      updateWorldOffset(worldOffset - dt * self.xVelocity)
+      self.x = playerMinX
+    else
+      self.x = self.x + dt * self.xVelocity
+    end
     self.orientation = 0
   end
 end
