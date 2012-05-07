@@ -16,12 +16,12 @@ for action, keys in pairs(actions) do
   end
 end
 
-ilua.p(keyMap)
+gravity = 5000
 
 function love.load()
   local skyBlue = {153, 204, 255}
 
-  player = Player.create(300, 400)
+  player = Player.create(300, 485)
   ground = Ground.create()
   love.graphics.setBackgroundColor(skyBlue)
 end
@@ -46,6 +46,11 @@ end
 function love.draw()
   ground:draw()
   player:draw()
+  local yellow = {204, 255, 51, 180}
+  local r,g,b,a = love.graphics.getColor()
+  love.graphics.setColor(yellow)
+  love.graphics.arc("fill", 0, 0, 100, 0, math.pi / 2, 20)
+  love.graphics.setColor(r,g,b,a)
 end
 
 function love.update(dt)

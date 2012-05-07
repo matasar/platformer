@@ -7,18 +7,29 @@ function Player.create(xPos,yPos)
     y = yPos,
     upVelocity = 0,
     image = love.graphics.newImage("planetcute/Character Boy.png"),
-    gravity = 1000,
-    jumpHeight = 400,
+    gravity = gravity,
+    jumpHeight = 900,
     upAcceleration = 0,
-    maxUpAcceleration = 0.1,
-    xVelocity = 400
+    maxUpAcceleration = 0.4,
+    maxXVelocity = 400,
+    xAcceleration = 2000,
+    xVelocity = 0,
+    decelDirection = 1,
+    xDeceleration = 1000,
+    orientation = 0
   }
   setmetatable(instance, Player)
   return instance
 end
 
 function Player:draw()
-  love.graphics.draw(self.image, self.x, self.y)
+  love.graphics.draw(self.image, self.x, self.y, self.orientation, 1, 1, 50, 85)
+--  local x,y,width,height = self:getHitBox()
+--  love.graphics.rectangle("line", x,y,width,height)
+end
+
+function Player:getHitBox()
+  return self.x - 40, self.y - 30, 80, 85
 end
 
 function Player:up()
@@ -30,6 +41,10 @@ end
 
 function Player:isJumping()
   return self.upVelocity ~= 0
+end
+
+function Player:isMoving()
+  return self:isMovingLeft() or self:isMovingRight()
 end
 
 function Player:isMovingLeft()
@@ -46,20 +61,29 @@ function Player:update(dt)
     self.upVelocity = self.upVelocity + self.jumpHeight * (dt / self.maxUpAcceleration)
   end
 
-  if self.upVelocity ~= 0 then
+  if self:isJumping() then
     self.y = self.y - self.upVelocity * dt
     self.upVelocity = self.upVelocity - (self.gravity * dt)
-    if self.y > 400 then
+    if self.y > 485 then
       self.upVelocity = 0
       self.upAcceleration = 0
-      self.y = 400
+      self.y = 485
     end
   end
-  if self:isMovingLeft() then
-    self.x = self.x - dt * self.xVelocity
-  end
-  if self:isMovingRight() then
-    self.x = self.x + dt * self.xVelocity
-  end
 
+  if self:isMovingLeft() then
+    self.xVelocity = math.min(self.xVelocity + (dt * self.xAcceleration), self.maxXVelocity)
+    self.x = self.x - dt * self.xVelocity
+    self.decelDirection = -1
+    self.orientation = -1 * math.pi / 20
+  elseif self:isMovingRight() then
+    self.xVelocity = math.min(self.xVelocity + (dt * self.xAcceleration), self.maxXVelocity)
+    self.x = self.x + dt * self.xVelocity
+    self.decelDirection = 1
+    self.orientation = math.pi / 20
+  else -- decel
+    self.xVelocity = math.max(math.abs(self.xVelocity) - (dt * self.xDeceleration), 0) * self.decelDirection
+    self.x = self.x + dt * self.xVelocity
+    self.orientation = 0
+  end
 end

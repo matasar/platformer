@@ -12,11 +12,12 @@ function Ground.create()
 end
 
 function Ground:draw()
-  --screen.width = 800
-  --screen.height = 600
-
   for i = 1,9 do
     local xPos = ((i - 1) * 100)
-    love.graphics.draw(self.image, xPos, 600 - self.height)
+    love.graphics.draw(self.image, xPos, self:getHeight())
   end
+end
+
+function Ground:getHeight()
+  return love.graphics.getHeight() - self.height
 end
