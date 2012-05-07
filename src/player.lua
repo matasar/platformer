@@ -8,7 +8,7 @@ function Player.create(xPos,yPos)
     upVelocity = 0,
     image = love.graphics.newImage("planetcute/Character Boy.png"),
     gravity = gravity,
-    jumpHeight = 900,
+    jumpHeight = 1100,
     upAcceleration = 0,
     maxUpAcceleration = 0.4,
     maxXVelocity = 400,
@@ -48,60 +48,73 @@ function Player:isMoving()
 end
 
 function Player:isMovingLeft()
-  return keyDownForAction("left")
+  return not keyDownForAction("right") and keyDownForAction("left")
 end
 
 function Player:isMovingRight()
-  return not self:isMovingLeft() and keyDownForAction("right")
+  return not keyDownForAction("left") and keyDownForAction("right")
+end
+
+function Player:isOnGround()
+  return ground:isOnGround(self)
+end
+
+function Player:moveX(direction, dt) -- -1 is left, 1 is right
+  self.xVelocity = math.min(self.xVelocity + (dt * self.xAcceleration), self.maxXVelocity)
+  self.x = self.x + dt * self.xVelocity * direction
+  self.decelDirection = direction
+  self.orientation = direction * math.pi / 20
+  if self.x < playerMinX then
+    updateWorldOffset(worldOffset + dt * self.xVelocity)
+    self.x = playerMinX
+  end
+  if self.x > playerMaxX then
+    updateWorldOffset(worldOffset - dt * self.xVelocity)
+    self.x = playerMaxX
+  end
+end
+
+function Player:decellerateX(dt)
+  self.xVelocity = math.max(math.abs(self.xVelocity) - (dt * self.xDeceleration), 0) * self.decelDirection
+  if self.x >= playerMaxX then
+    updateWorldOffset(worldOffset - dt * self.xVelocity)
+    self.x = playerMaxX
+  elseif self.x <= playerMinX then
+    updateWorldOffset(worldOffset - dt * self.xVelocity)
+    self.x = playerMinX
+  else
+    self.x = self.x + dt * self.xVelocity
+  end
+  self.orientation = 0
+end
+
+function Player:updateJump(dt)
+  self.y = self.y - self.upVelocity * dt
+  self.upVelocity = self.upVelocity - (self.gravity * dt)
+  if self.y > 485 and self:isOnGround() then
+    self.upVelocity = 0
+    self.upAcceleration = 0
+    self.y = 485
+  end
 end
 
 function Player:update(dt)
-  if self.upAcceleration > 0 and keyDownForAction("up") then
+  if self.upAcceleration > 0 and keyDownForAction("up") and self:isOnGround() then
     self.upAcceleration = self.upAcceleration - dt
     self.upVelocity = self.upVelocity + self.jumpHeight * (dt / self.maxUpAcceleration)
   end
 
   if self:isJumping() then
-    self.y = self.y - self.upVelocity * dt
-    self.upVelocity = self.upVelocity - (self.gravity * dt)
-    if self.y > 485 and ground:isOnGround(self) then
-      self.upVelocity = 0
-      self.upAcceleration = 0
-      self.y = 485
-    end
-  elseif not ground:isOnGround(self) then
+    self:updateJump(dt)
+  elseif not self:isOnGround() then
     self.upVelocity = self.upVelocity - (self.gravity * dt)
   end
 
   if self:isMovingLeft() then
-    self.xVelocity = math.min(self.xVelocity + (dt * self.xAcceleration), self.maxXVelocity)
-    self.x = self.x - dt * self.xVelocity
-    self.decelDirection = -1
-    if self.x < playerMinX then
-      updateWorldOffset(worldOffset + dt * self.xVelocity)
-      self.x = playerMinX
-    end
-    self.orientation = -1 * math.pi / 20
+    self:moveX(-1, dt)
   elseif self:isMovingRight() then
-    self.xVelocity = math.min(self.xVelocity + (dt * self.xAcceleration), self.maxXVelocity)
-    self.x = self.x + dt * self.xVelocity
-    if self.x > playerMaxX then
-      updateWorldOffset(worldOffset - dt * self.xVelocity)
-      self.x = playerMaxX
-    end
-    self.decelDirection = 1
-    self.orientation = math.pi / 20
+    self:moveX(1, dt)
   else -- decel
-    self.xVelocity = math.max(math.abs(self.xVelocity) - (dt * self.xDeceleration), 0) * self.decelDirection
-    if self.x >= playerMaxX then
-      updateWorldOffset(worldOffset - dt * self.xVelocity)
-      self.x = playerMaxX
-    elseif self.x <= playerMinX then
-      updateWorldOffset(worldOffset - dt * self.xVelocity)
-      self.x = playerMinX
-    else
-      self.x = self.x + dt * self.xVelocity
-    end
-    self.orientation = 0
+    self:decellerateX(dt)
   end
 end

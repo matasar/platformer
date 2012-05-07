@@ -19,7 +19,7 @@ end
 gravity = 5000
 worldOffset = 0
 playerMaxX = love.graphics.getWidth() - 200
-playerMinX = 200
+playerMinX = 100
 
 function love.load()
   local skyBlue = {153, 204, 255}
