@@ -12,12 +12,18 @@ function Ground.create()
 end
 
 function Ground:draw()
-  for i = 1,9 do
-    local xPos = ((i - 1) * 100)
+  for i = 1,12 do
+    local xPos = ((i - 1) * 100) + worldOffset
     love.graphics.draw(self.image, xPos, self:getHeight())
   end
+  local x,y,width,height = self:getBox()
+  love.graphics.rectangle("line", x,y,width,height)
 end
 
 function Ground:getHeight()
   return love.graphics.getHeight() - self.height
+end
+
+function Ground:getBox()
+  return 0, 0, love.graphics.getWidth(), self:getHeight() + 115
 end

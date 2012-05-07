@@ -17,6 +17,9 @@ for action, keys in pairs(actions) do
 end
 
 gravity = 5000
+worldOffset = 0
+playerMaxX = love.graphics.getWidth() - 200
+playerMinX = 200
 
 function love.load()
   local skyBlue = {153, 204, 255}
@@ -46,7 +49,7 @@ end
 function love.draw()
   ground:draw()
   player:draw()
-  local yellow = {204, 255, 51, 180}
+  local yellow = {204, 255, 51, 255}
   local r,g,b,a = love.graphics.getColor()
   love.graphics.setColor(yellow)
   love.graphics.arc("fill", 0, 0, 100, 0, math.pi / 2, 20)

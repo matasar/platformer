@@ -24,8 +24,8 @@ end
 
 function Player:draw()
   love.graphics.draw(self.image, self.x, self.y, self.orientation, 1, 1, 50, 85)
---  local x,y,width,height = self:getHitBox()
---  love.graphics.rectangle("line", x,y,width,height)
+  local x,y,width,height = self:getHitBox()
+  love.graphics.rectangle("line", x,y,width,height)
 end
 
 function Player:getHitBox()
@@ -75,10 +75,18 @@ function Player:update(dt)
     self.xVelocity = math.min(self.xVelocity + (dt * self.xAcceleration), self.maxXVelocity)
     self.x = self.x - dt * self.xVelocity
     self.decelDirection = -1
+    if self.x < playerMinX then
+      worldOffset = worldOffset + dt * self.xVelocity
+      self.x = playerMinX
+    end
     self.orientation = -1 * math.pi / 20
   elseif self:isMovingRight() then
     self.xVelocity = math.min(self.xVelocity + (dt * self.xAcceleration), self.maxXVelocity)
     self.x = self.x + dt * self.xVelocity
+    if self.x > playerMaxX then
+      worldOffset = worldOffset - dt * self.xVelocity
+      self.x = playerMaxX
+    end
     self.decelDirection = 1
     self.orientation = math.pi / 20
   else -- decel
