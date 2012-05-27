@@ -25,8 +25,8 @@ function love.load()
   local skyBlue = {153, 204, 255}
 
   player = Player.create(300, 485)
-  ground = Ground.create()
-  ground:isOnGround(player)
+  ground = Platform.create()
+  ground:isOnPlatform(player)
   love.graphics.setBackgroundColor(skyBlue)
 end
 

@@ -1,17 +1,17 @@
-Ground = {}
-Ground.__index = Ground
+Platform = {}
+Platform.__index = Platform
 
-function Ground.create()
+function Platform.create()
   local instance = {
     image = love.graphics.newImage("planetcute/Grass Block.png"),
     imageHeight = 171,
     imageWidth = 101
   }
-  setmetatable(instance, Ground)
+  setmetatable(instance, Platform)
   return instance
 end
 
-function Ground:draw()
+function Platform:draw()
   for i = 1,12 do
     local xPos = ((i - 1) * 100) + worldOffset
     love.graphics.draw(self.image, xPos, self:getHeight() - 100)
@@ -20,14 +20,14 @@ function Ground:draw()
   love.graphics.rectangle("line", x,y,width,height)
 end
 
-function Ground:getHeight()
+function Platform:getHeight()
   return love.graphics.getHeight() - self.imageHeight + 100
 end
 
-function Ground:getBox()
+function Platform:getBox()
   return 0, self:getHeight(), 1200 + worldOffset, love.graphics.getHeight()
 end
 
-function Ground:isOnGround(player)
-  return player.x - worldOffset < 1200
+function Platform:isOnPlatform(player)
+  return (player.x - worldOffset < 1200)
 end

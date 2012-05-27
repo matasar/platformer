@@ -55,8 +55,8 @@ function Player:isMovingRight()
   return not keyDownForAction("left") and keyDownForAction("right")
 end
 
-function Player:isOnGround()
-  return ground:isOnGround(self)
+function Player:isOnPlatform()
+  return ground:isOnPlatform(self)
 end
 
 function Player:moveX(direction, dt) -- -1 is left, 1 is right
@@ -91,7 +91,7 @@ end
 function Player:updateJump(dt)
   self.y = self.y - self.upVelocity * dt
   self.upVelocity = self.upVelocity - (self.gravity * dt)
-  if self.y > 485 and self:isOnGround() then
+  if self.y > 485 and self:isOnPlatform() then
     self.upVelocity = 0
     self.upAcceleration = 0
     self.y = 485
@@ -99,14 +99,14 @@ function Player:updateJump(dt)
 end
 
 function Player:update(dt)
-  if self.upAcceleration > 0 and keyDownForAction("up") and self:isOnGround() then
+  if self.upAcceleration > 0 and keyDownForAction("up") and self:isOnPlatform() then
     self.upAcceleration = self.upAcceleration - dt
     self.upVelocity = self.upVelocity + self.jumpHeight * (dt / self.maxUpAcceleration)
   end
 
   if self:isJumping() then
     self:updateJump(dt)
-  elseif not self:isOnGround() then
+  elseif not self:isOnPlatform() then
     self.upVelocity = self.upVelocity - (self.gravity * dt)
   end
 
