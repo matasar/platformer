@@ -1,5 +1,5 @@
 require 'src/player'
-require 'src/ground'
+require 'src/platform'
 require 'src/lib/ilua'
 
 local actions = {
@@ -24,9 +24,9 @@ playerMinX = 100
 function love.load()
   local skyBlue = {153, 204, 255}
 
-  player = Player.create(300, 485)
-  ground = Platform.create()
-  ground:isOnPlatform(player)
+  ground = Platform.create(0,love.graphics.getHeight() - 200,12,love.graphics.newImage("planetcute/Grass Block.png"))
+  player = Player.create(300, ground:getHeight(), 0.65)
+
   love.graphics.setBackgroundColor(skyBlue)
 end
 

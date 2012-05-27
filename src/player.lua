@@ -1,10 +1,11 @@
 Player = {}
 Player.__index = Player
 
-function Player.create(xPos,yPos)
+function Player.create(xPos,yPos, scale)
   local instance = {
     x = xPos,
     y = yPos,
+    scale = scale,
     upVelocity = 0,
     image = love.graphics.newImage("planetcute/Character Boy.png"),
     gravity = gravity,
@@ -23,13 +24,17 @@ function Player.create(xPos,yPos)
 end
 
 function Player:draw()
-  love.graphics.draw(self.image, self.x, self.y, self.orientation, 1, 1, 50, 85)
   local x,y,width,height = self:getBox()
+  love.graphics.draw(self.image, x + self:width(), y, self.orientation, self.scale, self.scale, width, height)
   love.graphics.rectangle("line", x,y,width,height)
 end
 
 function Player:getBox()
-  return self.x - 40, self.y - 30, 80, 85
+  return self.x - self:width(), self.y - (50 * self.scale), 80 * self.scale, 85 * self.scale
+end
+
+function Player:width()
+  return 40 * self.scale
 end
 
 function Player:up()
@@ -91,10 +96,20 @@ end
 function Player:updateJump(dt)
   self.y = self.y - self.upVelocity * dt
   self.upVelocity = self.upVelocity - (self.gravity * dt)
-  if self.y > 485 and self:isOnPlatform() then
+  if self.y > ground:getHeight() and self:isOnPlatform() then
     self.upVelocity = 0
     self.upAcceleration = 0
-    self.y = 485
+    self.y = ground:getHeight()
+  end
+end
+
+function Player:updateMovement(dt)
+  if self:isMovingLeft() then
+    self:moveX(-1, dt)
+  elseif self:isMovingRight() then
+    self:moveX(1, dt)
+  else
+    self:decellerateX(dt)
   end
 end
 
@@ -110,11 +125,5 @@ function Player:update(dt)
     self.upVelocity = self.upVelocity - (self.gravity * dt)
   end
 
-  if self:isMovingLeft() then
-    self:moveX(-1, dt)
-  elseif self:isMovingRight() then
-    self:moveX(1, dt)
-  else -- decel
-    self:decellerateX(dt)
-  end
+  self:updateMovement(dt)
 end
