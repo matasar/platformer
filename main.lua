@@ -24,7 +24,8 @@ playerMinX = 100
 function love.load()
   local skyBlue = {153, 204, 255}
 
-  ground = Platform.create(0,love.graphics.getHeight() - 200,12,love.graphics.newImage("planetcute/Grass Block.png"))
+  ground = Platform.create(0,love.graphics.getHeight(),12,love.graphics.newImage("planetcute/Grass Block.png"))
+  float = Platform.create(200,love.graphics.getHeight() - 150,4,love.graphics.newImage("planetcute/Brown Block.png"))
   player = Player.create(300, ground:getHeight(), 0.65)
 
   love.graphics.setBackgroundColor(skyBlue)
@@ -60,6 +61,7 @@ end
 
 function love.draw()
   ground:draw()
+  float:draw()
   player:draw()
   local yellow = {204, 255, 51, 255}
   withColor(yellow, function()

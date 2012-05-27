@@ -35,11 +35,11 @@ function Platform:getHeight()
 end
 
 function Platform:getBox()
-  return 0, self:getHeight(), self:getEndOfWorld() + worldOffset, 50 * self.scale
+  return self.x + worldOffset, self:getHeight(), self:getEndOfWorld(), 50 * self.scale
 end
 
 function Platform:getEndOfWorld()
-  return 1200 * self.scale
+  return self.squares * 100 * self.scale
 end
 
 function Platform:isOnPlatform(player)
